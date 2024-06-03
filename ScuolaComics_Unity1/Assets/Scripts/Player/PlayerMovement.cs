@@ -91,20 +91,7 @@ public class PlayerMovement : MonoBehaviour
 
     private void LateUpdate()
     {
-        // da rispiegare un po' la differenza tra le position/rotation/scale e le localPosition/localRotation/localScale
-        // da spiegare il Quaternione. Qui sono purtroppo andato un po' veloce perché abbiamo perso parecchio tempo a sistemare problemi con VS e Unity
-        // L'obiettivo era quello di sparare dal player usanto il click del mouse.
-        // manca il binding del click del mouse e tutta la parte di instantiate...
-        // la ragazza online (Lisa) è un po' lenta e ha fatto perdere un po' di tempo a tutti quanti. Va un po' gestita perché si agita per nulla e fa casini. ad esempio non riusciva a creare una cartella.
-        // è un po' più indietro e meno reattiva degli altri. 
-        // Non ho fatto un GameManager perché mi sembrvaa già troppa roba tutto questo, quindi se vuoi puoi far spostare tutto questo codice di input da un'altra parte. 
-        // non conoscono le Action e a malapena sanno i delegati. (te lo dico a titolo informativo) 
-        // Gli ho però spiegato la collision matrix e la differenza tra i componenti 2d e 3d e la differenza anche delle due collision matrix. Gli ho fatto vedere che due oggetti possono collidere oppure no grazie a questa.
-        // 
-        // ps. dobbiamo assolutamente parlare con Alessio perché a questi ragazzi è stato chiesto di fare una build del gioco per il Visual Scripting senza che però venisse spiegato nulla.
-        // non sapevano neanche la differenza tra un gameObject figlio e un Genitore però li hanno fatti sforzare per fare una build, senza neanche spiegargli cosa sono tutti i settaggi che vedono in Build Settings.
-        // ritrovandosi tra l'altro a non capire come mai la build non gli funzionava in certe occasioni, o come mai una volta buildato le cose schiantavano... 
-        // insomma, mi da fastidio che le cose importanti vengano fatte in maniera grossolana, perché se poi imparano a fare le cose male, poi si ritrovano a fare il doppio della fativa a dover re-imparare per bene come fare determinate cose.
+        
         _mainCamera.transform.localRotation = Quaternion.Euler(-_rotation.y * rotationSensibility, _rotation.x * rotationSensibility, 0); 
     }
 }
