@@ -182,6 +182,128 @@ public partial class @InputActionSystem: IInputActionCollection2, IDisposable
                     ""isPartOfComposite"": false
                 }
             ]
+        },
+        {
+            ""name"": ""PlayerMovementVector"",
+            ""id"": ""2021ac7b-9b4e-4f94-a149-a6320e3da77a"",
+            ""actions"": [
+                {
+                    ""name"": ""Movement"",
+                    ""type"": ""Value"",
+                    ""id"": ""8edea99e-befa-4a3e-bff6-5197ec504797"",
+                    ""expectedControlType"": ""Vector3"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": true
+                }
+            ],
+            ""bindings"": [
+                {
+                    ""name"": ""3D Vector"",
+                    ""id"": ""15e02006-ad98-44f8-a6d6-840147b43843"",
+                    ""path"": ""3DVector"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Movement"",
+                    ""isComposite"": true,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": ""up"",
+                    ""id"": ""bf4a4fc2-c102-48ab-8bd8-db0b31498263"",
+                    ""path"": """",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Movement"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""down"",
+                    ""id"": ""6c44eb73-a6d5-4076-879b-e4cde94e9460"",
+                    ""path"": """",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Movement"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""left"",
+                    ""id"": ""219e8598-2c0b-4389-bff6-ba139db42604"",
+                    ""path"": ""<Keyboard>/a"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Movement"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""right"",
+                    ""id"": ""acb0ef87-d362-4678-b076-d0eeb828aa58"",
+                    ""path"": ""<Keyboard>/d"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Movement"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""forward"",
+                    ""id"": ""321467d8-49ae-4098-8b71-681f801b43da"",
+                    ""path"": ""<Keyboard>/w"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Movement"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""backward"",
+                    ""id"": ""b8747ba4-2439-474b-8218-6129df23854e"",
+                    ""path"": ""<Keyboard>/s"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Movement"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                }
+            ]
+        },
+        {
+            ""name"": ""PlayerShoot"",
+            ""id"": ""39608fc2-42b9-47c8-bd2d-6b15e923fee4"",
+            ""actions"": [
+                {
+                    ""name"": ""Shoot"",
+                    ""type"": ""Button"",
+                    ""id"": ""e0cf93b1-05a6-4287-a2a8-5f572336a23f"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                }
+            ],
+            ""bindings"": [
+                {
+                    ""name"": """",
+                    ""id"": ""ac55b546-8540-4818-b9a0-91e7509f74c5"",
+                    ""path"": ""<Mouse>/leftButton"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Shoot"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                }
+            ]
         }
     ],
     ""controlSchemes"": []
@@ -195,6 +317,12 @@ public partial class @InputActionSystem: IInputActionCollection2, IDisposable
         // PlayerRotation
         m_PlayerRotation = asset.FindActionMap("PlayerRotation", throwIfNotFound: true);
         m_PlayerRotation_MouseAxis = m_PlayerRotation.FindAction("MouseAxis", throwIfNotFound: true);
+        // PlayerMovementVector
+        m_PlayerMovementVector = asset.FindActionMap("PlayerMovementVector", throwIfNotFound: true);
+        m_PlayerMovementVector_Movement = m_PlayerMovementVector.FindAction("Movement", throwIfNotFound: true);
+        // PlayerShoot
+        m_PlayerShoot = asset.FindActionMap("PlayerShoot", throwIfNotFound: true);
+        m_PlayerShoot_Shoot = m_PlayerShoot.FindAction("Shoot", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -368,6 +496,98 @@ public partial class @InputActionSystem: IInputActionCollection2, IDisposable
         }
     }
     public PlayerRotationActions @PlayerRotation => new PlayerRotationActions(this);
+
+    // PlayerMovementVector
+    private readonly InputActionMap m_PlayerMovementVector;
+    private List<IPlayerMovementVectorActions> m_PlayerMovementVectorActionsCallbackInterfaces = new List<IPlayerMovementVectorActions>();
+    private readonly InputAction m_PlayerMovementVector_Movement;
+    public struct PlayerMovementVectorActions
+    {
+        private @InputActionSystem m_Wrapper;
+        public PlayerMovementVectorActions(@InputActionSystem wrapper) { m_Wrapper = wrapper; }
+        public InputAction @Movement => m_Wrapper.m_PlayerMovementVector_Movement;
+        public InputActionMap Get() { return m_Wrapper.m_PlayerMovementVector; }
+        public void Enable() { Get().Enable(); }
+        public void Disable() { Get().Disable(); }
+        public bool enabled => Get().enabled;
+        public static implicit operator InputActionMap(PlayerMovementVectorActions set) { return set.Get(); }
+        public void AddCallbacks(IPlayerMovementVectorActions instance)
+        {
+            if (instance == null || m_Wrapper.m_PlayerMovementVectorActionsCallbackInterfaces.Contains(instance)) return;
+            m_Wrapper.m_PlayerMovementVectorActionsCallbackInterfaces.Add(instance);
+            @Movement.started += instance.OnMovement;
+            @Movement.performed += instance.OnMovement;
+            @Movement.canceled += instance.OnMovement;
+        }
+
+        private void UnregisterCallbacks(IPlayerMovementVectorActions instance)
+        {
+            @Movement.started -= instance.OnMovement;
+            @Movement.performed -= instance.OnMovement;
+            @Movement.canceled -= instance.OnMovement;
+        }
+
+        public void RemoveCallbacks(IPlayerMovementVectorActions instance)
+        {
+            if (m_Wrapper.m_PlayerMovementVectorActionsCallbackInterfaces.Remove(instance))
+                UnregisterCallbacks(instance);
+        }
+
+        public void SetCallbacks(IPlayerMovementVectorActions instance)
+        {
+            foreach (var item in m_Wrapper.m_PlayerMovementVectorActionsCallbackInterfaces)
+                UnregisterCallbacks(item);
+            m_Wrapper.m_PlayerMovementVectorActionsCallbackInterfaces.Clear();
+            AddCallbacks(instance);
+        }
+    }
+    public PlayerMovementVectorActions @PlayerMovementVector => new PlayerMovementVectorActions(this);
+
+    // PlayerShoot
+    private readonly InputActionMap m_PlayerShoot;
+    private List<IPlayerShootActions> m_PlayerShootActionsCallbackInterfaces = new List<IPlayerShootActions>();
+    private readonly InputAction m_PlayerShoot_Shoot;
+    public struct PlayerShootActions
+    {
+        private @InputActionSystem m_Wrapper;
+        public PlayerShootActions(@InputActionSystem wrapper) { m_Wrapper = wrapper; }
+        public InputAction @Shoot => m_Wrapper.m_PlayerShoot_Shoot;
+        public InputActionMap Get() { return m_Wrapper.m_PlayerShoot; }
+        public void Enable() { Get().Enable(); }
+        public void Disable() { Get().Disable(); }
+        public bool enabled => Get().enabled;
+        public static implicit operator InputActionMap(PlayerShootActions set) { return set.Get(); }
+        public void AddCallbacks(IPlayerShootActions instance)
+        {
+            if (instance == null || m_Wrapper.m_PlayerShootActionsCallbackInterfaces.Contains(instance)) return;
+            m_Wrapper.m_PlayerShootActionsCallbackInterfaces.Add(instance);
+            @Shoot.started += instance.OnShoot;
+            @Shoot.performed += instance.OnShoot;
+            @Shoot.canceled += instance.OnShoot;
+        }
+
+        private void UnregisterCallbacks(IPlayerShootActions instance)
+        {
+            @Shoot.started -= instance.OnShoot;
+            @Shoot.performed -= instance.OnShoot;
+            @Shoot.canceled -= instance.OnShoot;
+        }
+
+        public void RemoveCallbacks(IPlayerShootActions instance)
+        {
+            if (m_Wrapper.m_PlayerShootActionsCallbackInterfaces.Remove(instance))
+                UnregisterCallbacks(instance);
+        }
+
+        public void SetCallbacks(IPlayerShootActions instance)
+        {
+            foreach (var item in m_Wrapper.m_PlayerShootActionsCallbackInterfaces)
+                UnregisterCallbacks(item);
+            m_Wrapper.m_PlayerShootActionsCallbackInterfaces.Clear();
+            AddCallbacks(instance);
+        }
+    }
+    public PlayerShootActions @PlayerShoot => new PlayerShootActions(this);
     public interface IPlayerMovementActions
     {
         void OnForward(InputAction.CallbackContext context);
@@ -378,5 +598,13 @@ public partial class @InputActionSystem: IInputActionCollection2, IDisposable
     public interface IPlayerRotationActions
     {
         void OnMouseAxis(InputAction.CallbackContext context);
+    }
+    public interface IPlayerMovementVectorActions
+    {
+        void OnMovement(InputAction.CallbackContext context);
+    }
+    public interface IPlayerShootActions
+    {
+        void OnShoot(InputAction.CallbackContext context);
     }
 }
