@@ -3,10 +3,10 @@ using UnityEngine.InputSystem;
 
 public class PlayerShooter : MonoBehaviour
 {
-    //prefab
-    //funzione di spawn 
     [SerializeField] private GameObject bulletPrefab;
     [SerializeField] private Transform bulletSpawnPoint;
+
+    [SerializeField] private float shootForce = 50f;
 
     private InputActionSystem _shootAction;
 
@@ -19,6 +19,10 @@ public class PlayerShooter : MonoBehaviour
 
     private void ShootAction(InputAction.CallbackContext context)
     {
-        Instantiate(bulletPrefab, bulletSpawnPoint.position, Camera.main.transform.rotation);
+        var bulletInstatiate = Instantiate(bulletPrefab, bulletSpawnPoint.position, Camera.main.transform.rotation);
+        bulletInstatiate.
+            GetComponent<Rigidbody>().
+            AddForce(   bulletInstatiate.transform.forward * shootForce, 
+                        ForceMode.Impulse);
     }
 }

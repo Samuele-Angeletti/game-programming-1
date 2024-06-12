@@ -8,4 +8,5 @@ public class Target : MonoBehaviour, IDamageable
     {
         Debug.Log("Hai colpito il nemico facendo danno " + damage);
     }
+    
 }

@@ -6,8 +6,8 @@ public class PlayerMovement : MonoBehaviour
 {
     [SerializeField] float force = 100;
     [SerializeField] float rotationSensibility = 3;
-    [SerializeField] float verticalRotationSensibility = 1.5f;
-    [SerializeField] float horizontalRotationSensibility = 3;
+    [SerializeField] private float verticalRotationSensibility = 1.5f;
+    [SerializeField] private float horizontalRotationSensibility = 3;
     Camera _mainCamera;
     InputActionSystem inputActions;
     Rigidbody _rigidBody;
@@ -19,21 +19,23 @@ public class PlayerMovement : MonoBehaviour
     private float horizontalAngularVelocity;
     private float rotationTime;
 
+    [SerializeField] private float clampRange = 45f;
+
     private void Awake()
     {
         inputActions = new InputActionSystem();
 
-        // inputActions.PlayerMovement.Forward.started += ForwardStarted;
-        // inputActions.PlayerMovement.Forward.canceled += ForwardCanceled;
+        inputActions.PlayerMovement.Forward.started += ForwardStarted;
+        inputActions.PlayerMovement.Forward.canceled += ForwardCanceled;
 
-        // inputActions.PlayerMovement.Back.started += BackStarted;
-        // inputActions.PlayerMovement.Back.canceled += BackCanceled;
+        inputActions.PlayerMovement.Back.started += BackStarted;
+        inputActions.PlayerMovement.Back.canceled += BackCanceled;
 
-        // inputActions.PlayerMovement.Left.started += LeftStarted;
-        // inputActions.PlayerMovement.Left.canceled += LeftCanceled;
+        inputActions.PlayerMovement.Left.started += LeftStarted;
+        inputActions.PlayerMovement.Left.canceled += LeftCanceled;
 
-        // inputActions.PlayerMovement.Right.started += RightStarted;
-        // inputActions.PlayerMovement.Right.canceled += RightCanceled;
+        inputActions.PlayerMovement.Right.started += RightStarted;
+        inputActions.PlayerMovement.Right.canceled += RightCanceled;
 
         inputActions.PlayerRotation.MouseAxis.performed += MouseAxisPerformed;
         inputActions.PlayerRotation.MouseAxis.canceled += MouseAxisPerformed;
@@ -116,7 +118,8 @@ public class PlayerMovement : MonoBehaviour
 
     void Update()
     {
-        _mainCamera.transform.position = new Vector3(transform.position.x, transform.position.y + 2f, _mainCamera.transform.position.z);
+        _mainCamera.transform.position = 
+            new Vector3(transform.position.x, transform.position.y + 2f, _mainCamera.transform.position.z);
         
         //Raycast Non Alloc
         // Debug.DrawRay(_mainCamera.transform.position, _mainCamera.transform.forward * 1000, Color.green);
@@ -134,14 +137,16 @@ public class PlayerMovement : MonoBehaviour
 
     private void LateUpdate()
     {
+        // Debug.Log("deltatime " + Time.deltaTime);
+        // Debug.Log("smoothdeltatime " + Time.smoothDeltaTime);
         horizontalRotation += _rotation.x * horizontalRotationSensibility * Time.smoothDeltaTime;
         verticalRotation += _rotation.y * verticalRotationSensibility * Time.smoothDeltaTime;
 
-        verticalRotation = math.clamp(verticalRotation, -45, 45);
+        // verticalRotation = math.clamp(verticalRotation, -45, 45);
+        verticalRotation = Mathf.Clamp(verticalRotation, -clampRange, clampRange);
 
         _mainCamera.transform.localRotation = Quaternion.Euler(-verticalRotation, horizontalRotation, 0); 
         transform.rotation = Quaternion.Euler(0, _mainCamera.transform.rotation.eulerAngles.y, 0);
-
     }
 
     // private void SmoothRotationUpdate()
