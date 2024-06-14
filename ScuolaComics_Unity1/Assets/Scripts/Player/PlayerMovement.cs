@@ -34,7 +34,10 @@ public class PlayerMovement : MonoBehaviour
         inputActions.Enable();
 
         _rigidBody = GetComponent<Rigidbody>();
+    }
 
+    void Start()
+    {
         _mainCamera = Camera.main;
         _rotation = _mainCamera.transform.rotation.eulerAngles;
     }
@@ -66,15 +69,15 @@ public class PlayerMovement : MonoBehaviour
 
     void Update()
     {
-        CameraFollow();
+        CameraFollowPlayer();
         
-        Debug.DrawRay(_mainCamera.transform.position, _mainCamera.transform.forward * 1000, Color.green);
+        // Debug.DrawRay(_mainCamera.transform.position, _mainCamera.transform.forward * 1000, Color.green);
 
         // Raycast Non Alloc
-        // var raycastNonAlloc = RaycastNonAlloc(maxCollisionDetection);
+        var raycastNonAlloc = RaycastNonAlloc(maxCollisionDetection);
         
         // Raycast Alloc
-        // var raycastAlloc = RaycastAlloc();
+        var raycastAlloc = RaycastAlloc();
     }
 
     private void FixedUpdate()
@@ -103,22 +106,24 @@ public class PlayerMovement : MonoBehaviour
 
     private void MovementUpdate()
     {
-        var moveDirection = math.normalizesafe(transform.forward) * _direction.z + math.normalizesafe(transform.right) * _direction.x;
+        var moveDirection = 
+            math.normalizesafe(transform.forward) * _direction.z 
+            + math.normalizesafe(transform.right) * _direction.x;
 
         // _rigidBody.AddForce(moveDirection * Time.fixedDeltaTime * force);
 
-        _rigidBody.velocity = moveDirection * Time.fixedDeltaTime * force;
+        _rigidBody.velocity = math.normalizesafe(moveDirection) * Time.fixedDeltaTime * force;
     }
 
-    private void CameraFollow()
+    private void CameraFollowPlayer()
     {
         _mainCamera.transform.position = 
-            new Vector3(transform.position.x, transform.position.y + 2f, _mainCamera.transform.position.z);
+            new Vector3(transform.position.x, transform.position.y + 2f, transform.position.z);
     }
 
     private RaycastHit[] RaycastNonAlloc(int maxCollisions = 10)
     {
-        RaycastHit[] hits = new RaycastHit[10];
+        RaycastHit[] hits = new RaycastHit[maxCollisions];
         Physics.RaycastNonAlloc(_mainCamera.transform.position, _mainCamera.transform.forward, hits, 1000, LayerMask.GetMask("Default"));
 
         foreach(var hit in hits)
@@ -134,8 +139,24 @@ public class PlayerMovement : MonoBehaviour
         RaycastHit[] hits = Physics.RaycastAll(_mainCamera.transform.position, _mainCamera.transform.forward, 1000, LayerMask.GetMask("Default"));
         foreach(var hit in hits)
         {
-            if(hit.collider) Debug.Log("ALLOC: " + hit.collider.gameObject.name);
+            if(hit.collider)
+            {
+                if(hit.collider.gameObject.TryGetComponent(out IDamageable damageable))
+                {
+                    damageable.TakeDamage(1);
+                }
+
+                Debug.Log("ALLOC: " + hit.collider.gameObject.name);
+            }
         }
         return hits;
     }
+
+    void OnDrawGizmos()
+    {
+        Gizmos.color = Color.red;
+        Gizmos.DrawRay(_mainCamera.transform.position, _mainCamera.transform.forward * 1000);
+    }
 }
+
+
