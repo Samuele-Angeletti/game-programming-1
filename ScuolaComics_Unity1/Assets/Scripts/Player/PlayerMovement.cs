@@ -1,3 +1,4 @@
+using System.Linq;
 using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -15,27 +16,14 @@ public class PlayerMovement : MonoBehaviour
     Vector2 _rotation;
     private float horizontalRotation = 0f;
     private float verticalRotation = 0f;
-    private float verticalAngularVelocity;
-    private float horizontalAngularVelocity;
-    private float rotationTime;
+
+    [SerializeField] private int maxCollisionDetection = 10;
 
     [SerializeField] private float clampRange = 45f;
 
     private void Awake()
     {
         inputActions = new InputActionSystem();
-
-        inputActions.PlayerMovement.Forward.started += ForwardStarted;
-        inputActions.PlayerMovement.Forward.canceled += ForwardCanceled;
-
-        inputActions.PlayerMovement.Back.started += BackStarted;
-        inputActions.PlayerMovement.Back.canceled += BackCanceled;
-
-        inputActions.PlayerMovement.Left.started += LeftStarted;
-        inputActions.PlayerMovement.Left.canceled += LeftCanceled;
-
-        inputActions.PlayerMovement.Right.started += RightStarted;
-        inputActions.PlayerMovement.Right.canceled += RightCanceled;
 
         inputActions.PlayerRotation.MouseAxis.performed += MouseAxisPerformed;
         inputActions.PlayerRotation.MouseAxis.canceled += MouseAxisPerformed;
@@ -57,49 +45,9 @@ public class PlayerMovement : MonoBehaviour
 
         if(context.phase == InputActionPhase.Canceled)
         {
-            Debug.Log("Mouse canceled");
+            // Debug.Log("Mouse canceled");
             _rotation = Vector2.zero;
         }
-    }
-
-    private void ForwardCanceled(InputAction.CallbackContext obj)
-    {
-        _direction = new Vector3(_direction.x, 0, 0);
-    }
-
-    private void ForwardStarted(InputAction.CallbackContext obj)
-    {
-        _direction = new Vector3(_direction.x, 0, 1);
-    }
-
-    private void BackCanceled(InputAction.CallbackContext obj)
-    {
-        _direction = new Vector3(_direction.x, 0, 0);
-    }
-
-    private void BackStarted(InputAction.CallbackContext obj)
-    {
-        _direction = new Vector3(_direction.x, 0, -1);
-    }
-
-    private void LeftCanceled(InputAction.CallbackContext obj)
-    {
-        _direction = new Vector3(0, 0, _direction.z);
-    }
-
-    private void LeftStarted(InputAction.CallbackContext obj)
-    {
-        _direction = new Vector3(-1, 0, _direction.z);
-    }
-
-    private void RightCanceled(InputAction.CallbackContext obj)
-    {
-        _direction = new Vector3(0, 0, _direction.z);
-    }
-
-    private void RightStarted(InputAction.CallbackContext obj)
-    {
-        _direction = new Vector3(1, 0, _direction.z);
     }
 
     private void VectorMovementPerformed(InputAction.CallbackContext obj)
@@ -118,24 +66,28 @@ public class PlayerMovement : MonoBehaviour
 
     void Update()
     {
-        _mainCamera.transform.position = 
-            new Vector3(transform.position.x, transform.position.y + 2f, _mainCamera.transform.position.z);
+        CameraFollow();
         
-        //Raycast Non Alloc
-        // Debug.DrawRay(_mainCamera.transform.position, _mainCamera.transform.forward * 1000, Color.green);
-        // RaycastHit[] hits = new RaycastHit[10];
-        // Physics.RaycastNonAlloc(_mainCamera.transform.position, _mainCamera.transform.forward, hits, 1000, LayerMask.GetMask("Default"));
+        Debug.DrawRay(_mainCamera.transform.position, _mainCamera.transform.forward * 1000, Color.green);
 
-        // var raycastAlloc = Physics.Raycast(_mainCamera.transform.position, _mainCamera.transform.forward, out var hit, 1000, LayerMask.GetMask("Default"));
-        // Debug.Log(hit);
+        // Raycast Non Alloc
+        // var raycastNonAlloc = RaycastNonAlloc(maxCollisionDetection);
+        
+        // Raycast Alloc
+        // var raycastAlloc = RaycastAlloc();
     }
 
     private void FixedUpdate()
     {
-        _rigidBody.AddForce(_direction * Time.fixedDeltaTime * force);
+        MovementUpdate();
     }
 
     private void LateUpdate()
+    {
+        RotationUpdate();
+    }
+
+    private void RotationUpdate()
     {
         // Debug.Log("deltatime " + Time.deltaTime);
         // Debug.Log("smoothdeltatime " + Time.smoothDeltaTime);
@@ -149,24 +101,41 @@ public class PlayerMovement : MonoBehaviour
         transform.rotation = Quaternion.Euler(0, _mainCamera.transform.rotation.eulerAngles.y, 0);
     }
 
-    // private void SmoothRotationUpdate()
-    // {
+    private void MovementUpdate()
+    {
+        var moveDirection = math.normalizesafe(transform.forward) * _direction.z + math.normalizesafe(transform.right) * _direction.x;
 
-    //     Debug.Log("Rotation " + _rotation);
-    //     // Calculate the vertical and horizontal rotation values based on mouse input
-    //     verticalRotation += _rotation.y * verticalRotationSensibility * Time.smoothDeltaTime * -1;
-    //     horizontalRotation += _rotation.x * verticalRotationSensibility * Time.smoothDeltaTime;
+        // _rigidBody.AddForce(moveDirection * Time.fixedDeltaTime * force);
 
-    //     Debug.Log("Vertical " + verticalRotation);
-    //     Debug.Log("Horizontal " + horizontalRotation);
+        _rigidBody.velocity = moveDirection * Time.fixedDeltaTime * force;
+    }
 
-    //     // Keep the vertical rotation between -90 and 90 degrees
-    //     verticalRotation = Mathf.Clamp(verticalRotation, -45, 45);
+    private void CameraFollow()
+    {
+        _mainCamera.transform.position = 
+            new Vector3(transform.position.x, transform.position.y + 2f, _mainCamera.transform.position.z);
+    }
 
-    //     // Smoothly rotate the camera based on the calculated values
-    //     _mainCamera.transform.localRotation = Quaternion.Euler(
-    //         Mathf.SmoothDampAngle(transform.localEulerAngles.x, verticalRotation, ref verticalAngularVelocity, rotationTime), // Vertical rotation
-    //         Mathf.SmoothDampAngle(transform.localEulerAngles.y, horizontalRotation, ref horizontalAngularVelocity, rotationTime), // Horizontal rotation
-    //         0f); // Don't rotate around the Z axis
-    // }
+    private RaycastHit[] RaycastNonAlloc(int maxCollisions = 10)
+    {
+        RaycastHit[] hits = new RaycastHit[10];
+        Physics.RaycastNonAlloc(_mainCamera.transform.position, _mainCamera.transform.forward, hits, 1000, LayerMask.GetMask("Default"));
+
+        foreach(var hit in hits)
+        {
+            if(hit.collider) Debug.Log("NON ALLOC: " + hit.collider.gameObject.name);
+        }
+
+        return hits;
+    }
+
+    private RaycastHit[] RaycastAlloc()
+    {
+        RaycastHit[] hits = Physics.RaycastAll(_mainCamera.transform.position, _mainCamera.transform.forward, 1000, LayerMask.GetMask("Default"));
+        foreach(var hit in hits)
+        {
+            if(hit.collider) Debug.Log("ALLOC: " + hit.collider.gameObject.name);
+        }
+        return hits;
+    }
 }
