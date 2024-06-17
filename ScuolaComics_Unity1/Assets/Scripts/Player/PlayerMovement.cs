@@ -152,11 +152,11 @@ public class PlayerMovement : MonoBehaviour
         return hits;
     }
 
-    void OnDrawGizmos()
-    {
-        Gizmos.color = Color.red;
-        Gizmos.DrawRay(_mainCamera.transform.position, _mainCamera.transform.forward * 1000);
-    }
+    //void OnDrawGizmos()
+    //{
+    //    Gizmos.color = Color.red;
+    //    Gizmos.DrawRay(_mainCamera.transform.position, _mainCamera.transform.forward * 1000);
+    //}
 }
 
 
