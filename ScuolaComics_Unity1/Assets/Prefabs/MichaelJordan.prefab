@@ -99,8 +99,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   force: 1000
   rotationSensibility: 1.5
-  verticalRotationSensibility: 100
-  horizontalRotationSensibility: 100
+  verticalRotationSensibility: 80
+  horizontalRotationSensibility: 80
   maxCollisionDetection: 10
   clampRange: 50
 --- !u!114 &2372882683036074516
