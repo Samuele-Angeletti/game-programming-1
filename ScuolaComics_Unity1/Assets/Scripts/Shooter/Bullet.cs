@@ -3,6 +3,7 @@ using UnityEngine;
 public class Bullet : MonoBehaviour
 {
     [SerializeField] private float timeToDestroy = 5f;
+    [SerializeField] private int danno = 1;
 
     private void Start()
     {
@@ -13,9 +14,7 @@ public class Bullet : MonoBehaviour
     {
         if (collision.gameObject.TryGetComponent(out IDamageable damageable))
         {
-            damageable.TakeDamage(1);
-
-            Destroy(collision.gameObject);
+            damageable.TakeDamage(danno);
         }
 
         Destroy(gameObject);

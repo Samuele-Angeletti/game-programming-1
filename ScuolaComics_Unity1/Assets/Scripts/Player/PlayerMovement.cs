@@ -128,7 +128,7 @@ public class PlayerMovement : MonoBehaviour
 
         foreach(var hit in hits)
         {
-            if(hit.collider) Debug.Log("NON ALLOC: " + hit.collider.gameObject.name);
+            // if(hit.collider) Debug.Log("NON ALLOC: " + hit.collider.gameObject.name);
         }
 
         return hits;
@@ -137,18 +137,18 @@ public class PlayerMovement : MonoBehaviour
     private RaycastHit[] RaycastAlloc()
     {
         RaycastHit[] hits = Physics.RaycastAll(_mainCamera.transform.position, _mainCamera.transform.forward, 1000, LayerMask.GetMask("Default"));
-        foreach(var hit in hits)
-        {
-            if(hit.collider)
-            {
-                if(hit.collider.gameObject.TryGetComponent(out IDamageable damageable))
-                {
-                    damageable.TakeDamage(1);
-                }
+        // foreach(var hit in hits)
+        // {
+        //     if(hit.collider)
+        //     {
+        //         if(hit.collider.gameObject.TryGetComponent(out IDamageable damageable))
+        //         {
+        //             damageable.TakeDamage(1);
+        //         }
 
-                Debug.Log("ALLOC: " + hit.collider.gameObject.name);
-            }
-        }
+        //         Debug.Log("ALLOC: " + hit.collider.gameObject.name);
+        //     }
+        // }
         return hits;
     }
 

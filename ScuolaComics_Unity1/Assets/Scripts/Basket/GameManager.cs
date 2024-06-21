@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 
 public class GameManager : MonoBehaviour
@@ -12,12 +13,16 @@ public class GameManager : MonoBehaviour
 
     int _score = 0;
 
+    public TextMeshProUGUI scoreText;
+    public string testoPunteggioBase = "Score: ";
+
     private void Awake()
     {
         MichaelJordan newMichaelJordan = Instantiate(michaelJordanPrefab);
 
         newMichaelJordan.transform.position = Vector3.zero;
 
+        scoreText.text = testoPunteggioBase + _score;
     }
 
     private void Update()
@@ -48,6 +53,8 @@ public class GameManager : MonoBehaviour
     internal void AggiungiPunto()
     {
         _score++;
+
+        scoreText.text = testoPunteggioBase + _score;
 
         Debug.Log("Canestro! " + _score);
     }
