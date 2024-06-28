@@ -21,6 +21,8 @@ public class PlayerMovement : MonoBehaviour
 
     [SerializeField] private float clampRange = 45f;
 
+    [SerializeField] private bool grounded = false;
+
     private void Awake()
     {
         inputActions = new InputActionSystem();
@@ -74,10 +76,21 @@ public class PlayerMovement : MonoBehaviour
         // Debug.DrawRay(_mainCamera.transform.position, _mainCamera.transform.forward * 1000, Color.green);
 
         // Raycast Non Alloc
-        var raycastNonAlloc = RaycastNonAlloc(maxCollisionDetection);
-        
+        // var raycastNonAlloc = RaycastNonAlloc(maxCollisionDetection);
+        // 
         // Raycast Alloc
-        var raycastAlloc = RaycastAlloc();
+        // var raycastAlloc = RaycastAlloc();
+
+        grounded = Physics.Raycast(new Vector3(transform.position.x, transform.position.y + 0.5f, transform.position.z), 
+                                    -transform.up, 
+                                    out RaycastHit hitInfo, 
+                                    3f, 
+                                    LayerMask.GetMask("Ground"));
+
+        if(grounded)
+        {
+            Debug.Log("Grounded");
+        }
     }
 
     private void FixedUpdate()
@@ -137,6 +150,7 @@ public class PlayerMovement : MonoBehaviour
     private RaycastHit[] RaycastAlloc()
     {
         RaycastHit[] hits = Physics.RaycastAll(_mainCamera.transform.position, _mainCamera.transform.forward, 1000, LayerMask.GetMask("Default"));
+        
         // foreach(var hit in hits)
         // {
         //     if(hit.collider)
@@ -152,11 +166,14 @@ public class PlayerMovement : MonoBehaviour
         return hits;
     }
 
-    //void OnDrawGizmos()
-    //{
-    //    Gizmos.color = Color.red;
-    //    Gizmos.DrawRay(_mainCamera.transform.position, _mainCamera.transform.forward * 1000);
-    //}
+    void OnDrawGizmos()
+    {
+        Gizmos.color = Color.red;
+        Gizmos.DrawRay(Camera.main.transform.position, Camera.main.transform.forward * 1000);
+
+        Gizmos.color = Color.blue;
+        Gizmos.DrawRay(new Vector3(transform.position.x, transform.position.y + 0.5f, transform.position.z), Vector3.down * 1f);
+    }
 }
 
 
